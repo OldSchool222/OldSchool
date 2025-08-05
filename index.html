@@ -456,8 +456,8 @@
             box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
         }
 
-        /* Analytics Section */
-        .analytics-section {
+        /* Log Section */
+        .log-section {
             display: none;
             background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(15px);
@@ -467,22 +467,29 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .analytics-card {
+        .log-card {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
         }
 
-        .chart-container {
-            height: 200px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            margin-top: 15px;
+        .log-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .log-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.6);
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid #4CAF50;
         }
 
         /* Notifications */
@@ -600,7 +607,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .login-section, .analytics-section, .admin-panel {
+            .login-section, .log-section, .admin-panel {
                 padding: 30px 20px;
             }
 
@@ -651,7 +658,7 @@
             </div>
             <nav class="nav-links">
                 <a href="#" id="homeLink">🏠 Home</a>
-                <a href="#" id="analyticsLink">📊 Analytics</a>
+                <a href="#" id="logLink" class="hidden">📋 Logs</a>
                 <a href="#" id="logoutLink" class="hidden">🚪 Logout</a>
             </nav>
         </div>
@@ -705,20 +712,6 @@
                         <div class="progress-fill" id="totalProgress"></div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number"><span id="estimatedWait">-</span><small>min</small></div>
-                    <div>Estimated Wait</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="waitProgress"></div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="avgWaitTime">5</div>
-                    <div>Avg. Service Time</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%;"></div>
-                    </div>
-                </div>
             </div>
 
             <!-- Queue Controls -->
@@ -758,35 +751,30 @@
             </div>
         </div>
 
-        <!-- Analytics Section -->
-        <div id="analyticsSection" class="analytics-section">
-            <h2>📊 Queue Analytics</h2>
-            <p style="margin-bottom: 35px; opacity: 0.9;">Real-time queue performance metrics</p>
+        <!-- Log Section -->
+        <div id="logSection" class="log-section">
+            <h2>📋 User Activity Logs</h2>
+            <p style="margin-bottom: 35px; opacity: 0.9;">Detailed user queue statistics</p>
             
-            <div class="queue-stats">
-                <div class="analytics-card">
-                    <h3>📈 Today's Stats</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; color: #4CAF50; font-weight: bold;">142</div>
-                            <div style="font-size: 14px; opacity: 0.8;">Total Served</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; color: #FFC107; font-weight: bold;">4.2</div>
-                            <div style="font-size: 14px; opacity: 0.8;">Avg Wait (min)</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; color: #2196F3; font-weight: bold;">98%</div>
-                            <div style="font-size: 14px; opacity: 0.8;">Satisfaction</div>
-                        </div>
+            <div class="log-stats">
+                <div class="log-card">
+                    <h3>📊 Queue Statistics</h3>
+                    <div id="userStats">
+                        <!-- User statistics will be populated here -->
                     </div>
                 </div>
-                <div class="analytics-card">
-                    <h3>⏱️ Peak Hours</h3>
-                    <div class="chart-container">
-                        📊 Peak: 2:00 PM - 4:00 PM<br>
-                        🕐 Low: 6:00 AM - 8:00 AM
+                <div class="log-card">
+                    <h3>🏆 Top Users</h3>
+                    <div id="topUsers">
+                        <!-- Top users will be populated here -->
                     </div>
+                </div>
+            </div>
+
+            <div class="log-card">
+                <h3>📝 Detailed Logs</h3>
+                <div class="user-list" id="detailedLogs">
+                    <!-- Detailed logs will be populated here -->
                 </div>
             </div>
         </div>
@@ -812,7 +800,17 @@
                             <option value="admin">👨‍💼 Administrator</option>
                         </select>
                     </div>
-                    <button class="btn" onclick="saveSettings()">💾 Save Settings</button>
+                    <button class="btn" onclick="createUser()">✨ Create User</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎛️ Queue Control</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <button class="btn btn-warning" onclick="pauseQueue()">⏸️ Pause Queue</button>
+                        <button class="btn btn-info" onclick="resumeQueue()">▶️ Resume Queue</button>
+                        <button class="btn btn-danger" onclick="clearQueue()">🗑️ Clear Queue</button>
+                        <button class="btn" onclick="processNext()">⏭️ Process Next</button>
+                    </div>
                 </div>
             </div>
 
@@ -853,18 +851,20 @@
             { username: 'user2', password: 'password', role: 'user' }
         ];
         let queuePaused = false;
-        let cooldownUsers = new Set();
+        let cooldownUsers = {}; // Changed to object to store end times
         let settings = {
             maxQueueSize: 50,
             serviceTime: 5,
-            cooldownTime: 30
+            cooldownTime: 12 * 60 // 12 hours in minutes
         };
         let activity = [];
+        let userLogs = {}; // Track user queue activities
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateDisplay();
             setInterval(updateQueue, 2000); // Update every 2 seconds
+            setInterval(updateCooldowns, 1000); // Update cooldowns every second
             
             // Add enter key support for login
             document.getElementById('password').addEventListener('keypress', function(e) {
@@ -898,6 +898,7 @@
                     showNotification(`Welcome, ${user.username}!`, 'success');
                     showQueueSection();
                     addActivity(`${user.username} logged in`);
+                    logUserActivity(user.username, 'login');
                 } else {
                     showNotification('Invalid credentials', 'error');
                 }
@@ -912,20 +913,17 @@
         function logout() {
             if (currentUser) {
                 addActivity(`${currentUser.username} logged out`);
-                // Remove user from queue if they're in it
-                const userIndex = queue.findIndex(u => u.username === currentUser.username);
-                if (userIndex !== -1) {
-                    queue.splice(userIndex, 1);
-                    addActivity(`${currentUser.username} left the queue (logout)`);
-                }
+                logUserActivity(currentUser.username, 'logout');
+                // Don't remove user from queue when logging out
             }
             
             currentUser = null;
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('queueSection').style.display = 'none';
-            document.getElementById('analyticsSection').style.display = 'none';
+            document.getElementById('logSection').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('logoutLink').classList.add('hidden');
+            document.getElementById('logLink').classList.add('hidden');
             
             // Clear form
             document.getElementById('username').value = '';
@@ -938,32 +936,37 @@
         function showQueueSection() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('queueSection').style.display = 'block';
-            document.getElementById('analyticsSection').style.display = 'none';
+            document.getElementById('logSection').style.display = 'none';
             document.getElementById('logoutLink').classList.remove('hidden');
             
             if (currentUser && currentUser.role === 'admin') {
                 document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('logLink').classList.remove('hidden');
             } else {
                 document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('logLink').classList.add('hidden');
             }
             
             updateDisplay();
         }
 
-        function showAnalyticsSection() {
-            if (!currentUser) return;
+        function showLogSection() {
+            if (!currentUser || currentUser.role !== 'admin') return;
             
             document.getElementById('queueSection').style.display = 'none';
-            document.getElementById('analyticsSection').style.display = 'block';
+            document.getElementById('logSection').style.display = 'block';
             document.getElementById('adminPanel').style.display = 'none';
+            updateLogDisplay();
         }
 
         // Queue Management
         function joinQueue() {
             if (!currentUser) return;
             
-            if (cooldownUsers.has(currentUser.username)) {
-                showNotification('You are in cooldown period', 'warning');
+            // Check cooldown
+            if (cooldownUsers[currentUser.username] && new Date() < cooldownUsers[currentUser.username]) {
+                const remainingTime = Math.ceil((cooldownUsers[currentUser.username] - new Date()) / (1000 * 60));
+                showNotification(`You are in cooldown for ${remainingTime} more minutes`, 'warning');
                 return;
             }
             
@@ -990,6 +993,7 @@
             
             queue.push(queueUser);
             addActivity(`${currentUser.username} joined the queue (Position: ${queue.length})`);
+            logUserActivity(currentUser.username, 'join_queue', queue.length);
             showNotification('Successfully joined the queue!', 'success');
             updateDisplay();
         }
@@ -1005,13 +1009,11 @@
             
             queue.splice(userIndex, 1);
             addActivity(`${currentUser.username} left the queue`);
+            logUserActivity(currentUser.username, 'leave_queue');
             showNotification('Left the queue', 'info');
             
-            // Start cooldown
-            cooldownUsers.add(currentUser.username);
-            setTimeout(() => {
-                cooldownUsers.delete(currentUser.username);
-            }, settings.cooldownTime * 60 * 1000);
+            // Start 12-hour cooldown
+            cooldownUsers[currentUser.username] = new Date(Date.now() + settings.cooldownTime * 60 * 1000);
             
             updateDisplay();
         }
@@ -1060,6 +1062,8 @@
             
             users = users.filter(u => u.username !== username);
             queue = queue.filter(u => u.username !== username);
+            delete cooldownUsers[username];
+            delete userLogs[username];
             addActivity(`Admin deleted user: ${username}`);
             showNotification(`User ${username} deleted`, 'success');
             updateDisplay();
@@ -1072,8 +1076,24 @@
             if (userIndex !== -1) {
                 queue.splice(userIndex, 1);
                 addActivity(`Admin removed ${username} from queue`);
+                logUserActivity(username, 'admin_removed');
                 showNotification(`Removed ${username} from queue`, 'success');
                 updateDisplay();
+            }
+        }
+
+        // هذه هي الوظيفة المطلوبة لإلغاء الكول داون
+        function removeCooldown(username) {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            
+            if (cooldownUsers[username]) {
+                delete cooldownUsers[username];
+                addActivity(`Admin removed cooldown for ${username}`);
+                logUserActivity(username, 'cooldown_removed');
+                showNotification(`Cooldown removed for ${username}`, 'success');
+                updateDisplay();
+            } else {
+                showNotification(`${username} is not in cooldown`, 'warning');
             }
         }
 
@@ -1097,6 +1117,9 @@
             if (!currentUser || currentUser.role !== 'admin') return;
             
             showModal('Clear Queue', 'Are you sure you want to clear the entire queue?', () => {
+                queue.forEach(user => {
+                    logUserActivity(user.username, 'admin_cleared');
+                });
                 queue = [];
                 addActivity('Admin cleared the queue');
                 showNotification('Queue cleared', 'success');
@@ -1114,26 +1137,43 @@
             
             const processedUser = queue.shift();
             addActivity(`${processedUser.username} was processed`);
+            logUserActivity(processedUser.username, 'processed', 1); // Position 1 means they were first
             showNotification(`Processed ${processedUser.username}`, 'success');
             
-            // Start cooldown for processed user
-            cooldownUsers.add(processedUser.username);
-            setTimeout(() => {
-                cooldownUsers.delete(processedUser.username);
-            }, settings.cooldownTime * 60 * 1000);
+            // Start 12-hour cooldown for processed user
+            cooldownUsers[processedUser.username] = new Date(Date.now() + settings.cooldownTime * 60 * 1000);
             
             updateDisplay();
         }
 
-        function saveSettings() {
-            if (!currentUser || currentUser.role !== 'admin') return;
+        // User Activity Logging
+        function logUserActivity(username, action, position = null) {
+            if (!userLogs[username]) {
+                userLogs[username] = {
+                    totalJoins: 0,
+                    timesFirst: 0,
+                    activities: []
+                };
+            }
             
-            settings.maxQueueSize = parseInt(document.getElementById('maxQueueSize').value) || 50;
-            settings.serviceTime = parseInt(document.getElementById('serviceTime').value) || 5;
-            settings.cooldownTime = parseInt(document.getElementById('cooldownTime').value) || 30;
+            const log = {
+                action: action,
+                timestamp: new Date(),
+                position: position
+            };
             
-            addActivity('Admin updated system settings');
-            showNotification('Settings saved successfully', 'success');
+            userLogs[username].activities.push(log);
+            
+            if (action === 'join_queue') {
+                userLogs[username].totalJoins++;
+            } else if (action === 'processed' && position === 1) {
+                userLogs[username].timesFirst++;
+            }
+            
+            // Keep only last 100 activities per user
+            if (userLogs[username].activities.length > 100) {
+                userLogs[username].activities = userLogs[username].activities.slice(-100);
+            }
         }
 
         // Display Updates
@@ -1148,17 +1188,14 @@
         function updateQueueStats() {
             const userPosition = currentUser ? queue.findIndex(u => u.username === currentUser.username) + 1 : 0;
             const totalQueue = queue.length;
-            const estimatedWait = userPosition > 0 ? (userPosition - 1) * settings.serviceTime : 0;
             
             document.getElementById('queuePosition').textContent = userPosition || '-';
             document.getElementById('totalQueue').textContent = totalQueue;
-            document.getElementById('estimatedWait').textContent = estimatedWait || '-';
             
             // Update progress bars
             const maxQueue = settings.maxQueueSize;
             document.getElementById('positionProgress').style.width = userPosition ? `${(userPosition / maxQueue) * 100}%` : '0%';
             document.getElementById('totalProgress').style.width = `${(totalQueue / maxQueue) * 100}%`;
-            document.getElementById('waitProgress').style.width = estimatedWait ? `${Math.min(estimatedWait / 30, 1) * 100}%` : '0%';
             
             // Update join/leave buttons
             const inQueue = currentUser && queue.find(u => u.username === currentUser.username);
@@ -1191,9 +1228,14 @@
                         <div>
                             <div class="user-tag">#${index + 1}</div>
                             ${currentUser && currentUser.role === 'admin' ? `
-                                <button class="btn btn-small btn-danger" onclick="removeFromQueue('${user.username}')" style="margin-left: 10px;">
-                                    Remove
-                                </button>
+                                <div style="display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap;">
+                                    <button class="btn btn-small btn-danger" onclick="removeFromQueue('${user.username}')" style="font-size: 12px;">
+                                        Remove
+                                    </button>
+                                    <button class="btn btn-small btn-info" onclick="removeCooldown('${user.username}')" style="font-size: 12px;">
+                                        Clear CD
+                                    </button>
+                                </div>
                             ` : ''}
                         </div>
                     </div>
@@ -1205,29 +1247,43 @@
             const userList = document.getElementById('userList');
             if (!userList || !currentUser || currentUser.role !== 'admin') return;
             
-            userList.innerHTML = users.map(user => `
-                <div class="user-item">
-                    <div class="user-info">
-                        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
-                        <div>
-                            <div style="font-weight: 600;">${user.username}</div>
-                            <div style="font-size: 14px; opacity: 0.8;">Role: ${user.role}</div>
+            userList.innerHTML = users.map(user => {
+                const inQueue = queue.find(q => q.username === user.username);
+                const inCooldown = cooldownUsers[user.username] && new Date() < cooldownUsers[user.username];
+                
+                return `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight: 600;">${user.username}</div>
+                                <div style="font-size: 14px; opacity: 0.8;">
+                                    Role: ${user.role}
+                                    ${inQueue ? ' | In Queue' : ''}
+                                    ${inCooldown ? ' | On Cooldown' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            ${user.username !== 'admin' ? `
+                                <button class="btn btn-small btn-danger" onclick="deleteUser('${user.username}')">
+                                    Delete
+                                </button>
+                            ` : ''}
+                            ${inQueue ? `
+                                <button class="btn btn-small btn-warning" onclick="removeFromQueue('${user.username}')">
+                                    Remove from Queue
+                                </button>
+                            ` : ''}
+                            ${inCooldown ? `
+                                <button class="btn btn-small btn-info" onclick="removeCooldown('${user.username}')">
+                                    Remove Cooldown
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
-                    <div class="admin-actions">
-                        ${user.username !== 'admin' ? `
-                            <button class="btn btn-small btn-danger" onclick="deleteUser('${user.username}')">
-                                Delete
-                            </button>
-                        ` : ''}
-                        ${queue.find(q => q.username === user.username) ? `
-                            <button class="btn btn-small btn-warning" onclick="removeFromQueue('${user.username}')">
-                                Remove from Queue
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updateActivityFeed() {
@@ -1254,14 +1310,112 @@
             const cooldownTimer = document.getElementById('cooldownTimer');
             if (!cooldownTimer || !currentUser) return;
             
-            if (cooldownUsers.has(currentUser.username)) {
-                // This is a simplified version - in a real app you'd track exact cooldown end times
+            const cooldownEnd = cooldownUsers[currentUser.username];
+            if (cooldownEnd && new Date() < cooldownEnd) {
+                const remaining = cooldownEnd - new Date();
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                
                 cooldownTimer.classList.remove('hidden');
-                document.getElementById('timerDisplay').textContent = '00:15:30'; // Placeholder
-                document.getElementById('cooldownProgress').style.width = '50%'; // Placeholder
+                document.getElementById('timerDisplay').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const totalCooldown = settings.cooldownTime * 60 * 1000;
+                const elapsed = totalCooldown - remaining;
+                const progress = (elapsed / totalCooldown) * 100;
+                document.getElementById('cooldownProgress').style.width = `${progress}%`;
             } else {
                 cooldownTimer.classList.add('hidden');
+                if (cooldownUsers[currentUser.username]) {
+                    delete cooldownUsers[currentUser.username];
+                }
             }
+        }
+
+        function updateCooldowns() {
+            if (currentUser) {
+                updateCooldownTimer();
+            }
+        }
+
+        function updateLogDisplay() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            
+            // Update user statistics
+            const userStats = document.getElementById('userStats');
+            const sortedUsers = Object.entries(userLogs)
+                .sort(([,a], [,b]) => b.totalJoins - a.totalJoins)
+                .slice(0, 10);
+            
+            userStats.innerHTML = sortedUsers.length > 0 ? sortedUsers.map(([username, data]) => `
+                <div class="log-item">
+                    <div>
+                        <strong>${username}</strong><br>
+                        <small>Joins: ${data.totalJoins} | Times First: ${data.timesFirst}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #4CAF50; font-weight: bold;">${data.totalJoins}</div>
+                        <div style="color: #FFC107; font-size: 12px;">#1: ${data.timesFirst}x</div>
+                    </div>
+                </div>
+            `).join('') : '<p style="text-align: center; opacity: 0.7;">No user data available</p>';
+            
+            // Update top users
+            const topUsers = document.getElementById('topUsers');
+            const topByFirst = Object.entries(userLogs)
+                .sort(([,a], [,b]) => b.timesFirst - a.timesFirst)
+                .slice(0, 5);
+            
+            topUsers.innerHTML = topByFirst.length > 0 ? topByFirst.map(([username, data], index) => `
+                <div class="log-item">
+                    <div>
+                        <span style="color: #FFC107;">#${index + 1}</span>
+                        <strong>${username}</strong>
+                    </div>
+                    <div style="color: #FFC107; font-weight: bold;">${data.timesFirst} times first</div>
+                </div>
+            `).join('') : '<p style="text-align: center; opacity: 0.7;">No data available</p>';
+            
+            // Update detailed logs
+            const detailedLogs = document.getElementById('detailedLogs');
+            const allActivities = [];
+            
+            Object.entries(userLogs).forEach(([username, data]) => {
+                data.activities.forEach(activity => {
+                    allActivities.push({ username, ...activity });
+                });
+            });
+            
+            const recentActivities = allActivities
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, 50);
+            
+            detailedLogs.innerHTML = recentActivities.length > 0 ? recentActivities.map(log => {
+                const actionText = {
+                    'login': '🔐 Logged in',
+                    'logout': '🚪 Logged out',
+                    'join_queue': `🚀 Joined queue (pos: ${log.position || 'N/A'})`,
+                    'leave_queue': '❌ Left queue',
+                    'processed': '✅ Was processed',
+                    'admin_removed': '👨‍💼 Removed by admin',
+                    'admin_cleared': '🗑️ Queue cleared by admin',
+                    'cooldown_removed': '⏰ Cooldown removed by admin'
+                };
+                
+                return `
+                    <div class="log-item">
+                        <div>
+                            <strong>${log.username}</strong><br>
+                            <small>${actionText[log.action] || log.action}</small>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; opacity: 0.8;">
+                            ${log.timestamp.toLocaleDateString()}<br>
+                            ${log.timestamp.toLocaleTimeString()}
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p style="text-align: center; opacity: 0.7;">No activity logs available</p>';
         }
 
         function updateQueue() {
@@ -1323,9 +1477,9 @@
             if (currentUser) showQueueSection();
         });
 
-        document.getElementById('analyticsLink').addEventListener('click', (e) => {
+        document.getElementById('logLink').addEventListener('click', (e) => {
             e.preventDefault();
-            if (currentUser) showAnalyticsSection();
+            if (currentUser && currentUser.role === 'admin') showLogSection();
         });
 
         document.getElementById('logoutLink').addEventListener('click', (e) => {
@@ -1339,46 +1493,6 @@
                 closeModal();
             }
         });
-
-        // Add some demo users to queue for testing
-        setTimeout(() => {
-            if (queue.length === 0) {
-                // Add some demo queue entries
-                queue.push(
-                    { username: 'demo_user1', joinTime: new Date(Date.now() - 300000), position: 1 },
-                    { username: 'demo_user2', joinTime: new Date(Date.now() - 180000), position: 2 },
-                    { username: 'demo_user3', joinTime: new Date(Date.now() - 120000), position: 3 }
-                );
-                updateDisplay();
-            }
-        }, 2000);
     </script>
 </body>
-</html>="createUser()">✨ Create User</button>
-                </div>
-
-                <div class="control-group">
-                    <h3>🎛️ Queue Control</h3>
-                    <div style="display: grid; gap: 15px;">
-                        <button class="btn btn-warning" onclick="pauseQueue()">⏸️ Pause Queue</button>
-                        <button class="btn btn-info" onclick="resumeQueue()">▶️ Resume Queue</button>
-                        <button class="btn btn-danger" onclick="clearQueue()">🗑️ Clear Queue</button>
-                        <button class="btn" onclick="processNext()">⏭️ Process Next</button>
-                    </div>
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label for="serviceTime">⏱️ Service Time (minutes)</label>
-                        <input type="number" id="serviceTime" value="5" min="1" max="60">
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h3>📊 System Settings</h3>
-                    <div class="form-group">
-                        <label for="maxQueueSize">👥 Max Queue Size</label>
-                        <input type="number" id="maxQueueSize" value="50" min="10" max="200">
-                    </div>
-                    <div class="form-group">
-                        <label for="cooldownTime">⏰ Cooldown Time (minutes)</label>
-                        <input type="number" id="cooldownTime" value="30" min="5" max="120">
-                    </div>
-                    <button class="btn" onclick
+</html>
